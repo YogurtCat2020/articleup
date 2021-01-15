@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "moduleResolution": "node",
+    "module": "commonjs",
+    "target": "es2015",
+    "experimentalDecorators": true,
+    "declaration": true,
+    "removeComments": true,
+    "noImplicitAny": false,
+    "sourceMap": false,
+    "outDir": "types"
+  },
+  "exclude": [
+    "dist",
+    "types"
+  ]
+}
