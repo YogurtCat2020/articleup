@@ -1,2 +1,2 @@
-import { Element } from './util';
-export default function (text: string): Element;
+import { element } from './util';
+export default function (text: string): element;

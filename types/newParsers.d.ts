@@ -1,4 +1,5 @@
-import { container } from '@yogurtcat/lib';
-import { Parser } from './util';
-export declare type Dict<K, V> = container.Dict<K, V>;
-export default function (syms?: any): Dict<string, Parser>;
+import { parser } from './util';
+declare const _default: (syms?: any) => {
+    [x: number]: parser;
+};
+export default _default;

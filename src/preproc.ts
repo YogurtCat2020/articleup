@@ -1,9 +1,13 @@
-import {trim, reverse} from './util'
-import Context from './Context'
+import {is, str} from '@yogurtcat/lib'
+import {vars} from './util'
 
 
-export default function(context: Context, text: string): string {
-  const vars = context.vars
+export type anoname = (ano: number) => string
+
+
+export default function(vars: vars, text: string, anoname?: anoname): string {
+  if(is.un(anoname)) anoname = ano => '~ano-'+String(ano)
+
   const r: string[] = []
   let ano = 0
   const vbl = /([^$(){}<> \n]+ ?)?<<</
@@ -23,9 +27,9 @@ export default function(context: Context, text: string): string {
 
     p = text.search(bl)
     let sk = text.slice(0, p)
-    let brv = br+reverse(sk)
-    let k = trim(sk)
-    if(k.length <= 0) k = '~ano-'+String(ano++)
+    let brv = br+str.reverse(sk)
+    let k = str.trim(sk)
+    if(k.length <= 0) k = anoname(ano++)
     text = text.slice(p+bl.length)
 
     p = text.search(brv)
@@ -36,9 +40,9 @@ export default function(context: Context, text: string): string {
     }
     let v = text.slice(0, p)
     let sv = `$:(${k}){}`
-    vars.set(k, [v])
     r.push(sv)
+    vars.set(k, [v])
     text = text.slice(p+brv.length)
   }
-  return r.join('')
+  return str.join(r)
 }

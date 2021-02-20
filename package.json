@@ -1,11 +1,19 @@
 {
+  "author": "YogurtCat",
   "name": "articleup",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "A package for aspect-oriented development of Vue components.",
+  "keywords": [
+    "articleup",
+    "component-oriented",
+    "customizable",
+    "markup-language"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/YogurtCat2020/articleup"
   },
+  "license": "MIT",
   "main": "dist/index.js",
   "types": "types/index.d.ts",
   "files": [
@@ -13,16 +21,9 @@
     "types"
   ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "webpack -w",
+    "build": "webpack"
   },
-  "keywords": [
-    "articleup",
-    "component-oriented",
-    "customizable",
-    "markup language"
-  ],
-  "author": "YogurtCat",
-  "license": "MIT",
   "devDependencies": {
     "ts-loader": "^8.0.11",
     "typescript": "^4.1.2",
@@ -30,6 +31,7 @@
     "webpack-cli": "^4.2.0"
   },
   "dependencies": {
-    "@yogurtcat/lib": "^1.0.10"
+    "@yogurtcat/lib": "^1.1.0",
+    "dasta": "^1.1.0"
   }
 }

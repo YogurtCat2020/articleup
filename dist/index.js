@@ -1,20 +1,11 @@
 /*!
- * articleup.js v1.0.0
+ * articleup.js v1.1.0
  * (c) 2020- YogurtCat
  * git: https://github.com/YogurtCat2020/articleup
  * Released under the MIT License.
  */
-(function webpackUniversalModuleDefinition(root, factory) {
-	if(typeof exports === 'object' && typeof module === 'object')
-		module.exports = factory();
-	else if(typeof define === 'function' && define.amd)
-		define([], factory);
-	else {
-		var a = factory();
-		for(var i in a) (typeof exports === 'object' ? exports : root)[i] = a[i];
-	}
-})(self, function() {
-return /******/ (() => { // webpackBootstrap
+module.exports =
+/******/ (() => { // webpackBootstrap
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
@@ -32,37 +23,29 @@ const newSyms_1 = __webpack_require__(/*! ./newSyms */ "./src/newSyms.ts");
 const newParsers_1 = __webpack_require__(/*! ./newParsers */ "./src/newParsers.ts");
 const newSifters_1 = __webpack_require__(/*! ./newSifters */ "./src/newSifters.ts");
 const newCreators_1 = __webpack_require__(/*! ./newCreators */ "./src/newCreators.ts");
-const newParagraph_1 = __webpack_require__(/*! ./newParagraph */ "./src/newParagraph.ts");
-const parse_1 = __webpack_require__(/*! ./parse */ "./src/parse.ts");
+const newParamode_1 = __webpack_require__(/*! ./newParamode */ "./src/newParamode.ts");
 const preproc_1 = __webpack_require__(/*! ./preproc */ "./src/preproc.ts");
-const { is, to } = lib_1.base;
-const { Dict } = lib_1.container;
+const parse_1 = __webpack_require__(/*! ./parse */ "./src/parse.ts");
 class Context {
-    constructor(args) {
-        let { syms, parsers, sifters, creators, paragraph } = args || {};
-        if (is.un(syms))
-            syms = newSyms_1.default();
-        if (is.un(parsers))
-            parsers = newParsers_1.default(syms);
-        if (is.un(sifters))
-            sifters = newSifters_1.default(syms);
-        if (is.un(creators))
-            creators = newCreators_1.default(syms);
-        if (is.un(paragraph))
-            paragraph = newParagraph_1.default(syms);
-        this.syms = new Dict(syms);
-        this.vars = new Dict();
-        this.parsers = parsers;
-        this.sifters = sifters;
-        this.creators = creators;
-        this.paragraph = paragraph;
+    constructor() {
+        const syms = newSyms_1.default();
+        const parsers = newParsers_1.default(syms);
+        const sifters = newSifters_1.default(syms);
+        const creators = newCreators_1.default(syms);
+        const paramode = newParamode_1.default(syms);
+        this.syms = new lib_1.Dict(syms);
+        this.vars = new lib_1.Dict();
+        this.parsers = new lib_1.Dict(parsers);
+        this.sifters = new lib_1.Dict(sifters);
+        this.creators = new lib_1.Dict(creators);
+        this.paramode = paramode;
     }
     parse(text) {
         const sym = this.syms.get('main');
         const parser = this.parsers.get(sym);
-        if (is.un(parser))
+        if (lib_1.is.un(parser))
             return [];
-        text = preproc_1.default(this, text);
+        text = preproc_1.default(this.vars, text);
         const element = parse_1.default(text);
         return parser(this, element);
     }
@@ -72,8 +55,8 @@ class Context {
         if (element.elems.length >= 2 && element.elems[1].elem === sym) {
             const r = [];
             for (let i of element.elems[1].attrs) {
-                let t = to.obj(vars.get(i));
-                if (is.un(t))
+                let t = lib_1.to.obj(vars.get(i));
+                if (lib_1.is.un(t))
                     r.push(i);
                 else {
                     let e = {
@@ -87,7 +70,7 @@ class Context {
                     if (e.children.length <= 0)
                         continue;
                     let s = e.children[0];
-                    util_1.appends(r, util_1.split(util_1.trim(s)));
+                    lib_1.arr.appends(r, lib_1.str.split(lib_1.str.trim(s)));
                 }
             }
             element.elems[0].attrs = r;
@@ -112,15 +95,15 @@ class Context {
         const vars = this.vars;
         const r = [];
         for (let i of element.children) {
-            if (is.str(i) || i.elems[0].elem !== sym)
+            if (lib_1.is.str(i) || i.elems[0].elem !== sym)
                 r.push(i);
             else
                 for (let j of i.elems[0].attrs) {
-                    let t = to.obj(vars.get(j));
-                    if (is.un(t))
+                    let t = lib_1.to.obj(vars.get(j));
+                    if (lib_1.is.un(t))
                         r.push(j);
                     else
-                        util_1.appends(r, t);
+                        lib_1.arr.appends(r, t);
                 }
         }
         element.children = r;
@@ -131,11 +114,11 @@ class Context {
         const r = [];
         let b = false;
         for (let i of element.children) {
-            if (is.obj(i) && i.elems[0].elem === sym)
+            if (lib_1.is.obj(i) && i.elems[0].elem === sym)
                 b = true;
             else if (b) {
-                if (is.str(i))
-                    i = util_1.trimLeft(i);
+                if (lib_1.is.str(i))
+                    i = lib_1.str.trimLeft(i);
                 r.push(i);
                 b = false;
             }
@@ -146,12 +129,12 @@ class Context {
         return element;
     }
     parseChildrenJoin(element, sep) {
-        if (is.un(sep))
+        if (lib_1.is.un(sep))
             sep = '';
         const r = [];
         for (let i of element.children) {
-            if (is.str(i) && is.str(util_1.last(r)))
-                util_1.last(r, util_1.last(r) + sep + i);
+            if (lib_1.is.str(i) && lib_1.is.str(lib_1.arr.last(r)))
+                lib_1.arr.last(r, lib_1.arr.last(r) + sep + i);
             else
                 r.push(i);
         }
@@ -161,20 +144,20 @@ class Context {
     parseChildrenSplit(element) {
         let r = [];
         for (let i of element.children) {
-            if (is.str(i))
-                util_1.appends(r, util_1.splitLines(i).map(util_1.tightSpaces));
+            if (lib_1.is.str(i))
+                lib_1.arr.appends(r, lib_1.str.splitLines(i).map(lib_1.str.tightSpaces));
             else
                 r.push(i);
         }
         element.children = r;
         r = [];
         for (let i of element.children) {
-            if (is.str(i)) {
+            if (lib_1.is.str(i)) {
                 if (r.length <= 0)
-                    r.push(util_1.trimLeft(i));
-                else if (is.str(util_1.last(r))) {
-                    util_1.last(r, util_1.trimRight(util_1.last(r)));
-                    r.push(util_1.trimLeft(i));
+                    r.push(lib_1.str.trimLeft(i));
+                else if (lib_1.is.str(lib_1.arr.last(r))) {
+                    lib_1.arr.last(r, lib_1.str.trimRight(lib_1.arr.last(r)));
+                    r.push(lib_1.str.trimLeft(i));
                 }
                 else
                     r.push(i);
@@ -182,23 +165,23 @@ class Context {
             else
                 r.push(i);
         }
-        if (is.str(util_1.last(r)))
-            util_1.last(r, util_1.trimRight(util_1.last(r)));
+        if (lib_1.is.str(lib_1.arr.last(r)))
+            lib_1.arr.last(r, lib_1.str.trimRight(lib_1.arr.last(r)));
         element.children = r;
         return element;
     }
     parseChildrenDelEmpty(element) {
         const r = [];
         for (let i of element.children) {
-            if (is.str(i)) {
+            if (lib_1.is.str(i)) {
                 if (i === '') {
-                    if (r.length <= 0 || util_1.last(r) === '' && is.str(r[r.length - 2]))
+                    if (r.length <= 0 || lib_1.arr.last(r) === '' && lib_1.is.str(r[r.length - 2]))
                         continue;
                     r.push(i);
                 }
                 else {
-                    if (util_1.last(r) === '' && is.str(r[r.length - 2]))
-                        util_1.last(r, i);
+                    if (lib_1.arr.last(r) === '' && lib_1.is.str(r[r.length - 2]))
+                        lib_1.arr.last(r, i);
                     else
                         r.push(i);
                 }
@@ -206,7 +189,7 @@ class Context {
             else
                 r.push(i);
         }
-        while (util_1.last(r) === '')
+        while (lib_1.arr.last(r) === '')
             r.pop();
         element.children = r;
         return element;
@@ -226,7 +209,7 @@ class Context {
         let t = [];
         let b = false;
         for (let i of element.children) {
-            if (is.str(i)) {
+            if (lib_1.is.str(i)) {
                 if (b) {
                     r.push(newLine(t));
                     t = [i];
@@ -275,7 +258,7 @@ class Context {
     parseChildrenDelStrs(element) {
         const r = [];
         for (let i of element.children)
-            if (is.obj(i))
+            if (lib_1.is.obj(i))
                 r.push(i);
         element.children = r;
         return element;
@@ -283,7 +266,7 @@ class Context {
     parseChildrenDelElems(element) {
         const r = [];
         for (let i of element.children)
-            if (is.str(i))
+            if (lib_1.is.str(i))
                 r.push(i);
         element.children = r;
         return element;
@@ -292,7 +275,7 @@ class Context {
         const sym = this.syms.get('closure');
         const r = [];
         for (let i of element.children)
-            if (is.obj(i) && i.elems[0].elem === sym) {
+            if (lib_1.is.obj(i) && i.elems[0].elem === sym) {
                 i = this.parseVars(i);
                 i = this.parseElems(i);
                 i = this.parseChildrenVars(i);
@@ -301,7 +284,7 @@ class Context {
                 i = this.parseChildrenSplit(i);
                 i = this.parseChildrenDelEmpty(i);
                 i = this.parseChildrenJoinLines(i);
-                util_1.appends(r, i.children);
+                lib_1.arr.appends(r, i.children);
             }
             else
                 r.push(i);
@@ -310,24 +293,24 @@ class Context {
     }
     parseChildrenCopyStatus(element) {
         for (let i of element.children)
-            if (is.obj(i))
+            if (lib_1.is.obj(i))
                 util_1.copyStatus(i, element);
         return element;
     }
     parseChildrenParsers(element) {
         const r = [];
         for (let i of element.children)
-            if (is.str(i))
+            if (lib_1.is.str(i))
                 r.push(i);
             else
-                util_1.appends(r, this.parseParsers(i));
+                lib_1.arr.appends(r, this.parseParsers(i));
         return r;
     }
     parseParsers(element) {
         if (element.elems.length < 1)
             return [];
         const parser = this.parsers.get(element.elems[0].elem);
-        if (is.un(parser))
+        if (lib_1.is.un(parser))
             return [];
         return parser(this, element);
     }
@@ -335,18 +318,18 @@ class Context {
         if (element.elems.length < 1)
             return [];
         const sifter = this.sifters.get(element.elems[0].elem);
-        if (is.un(sifter))
+        if (lib_1.is.un(sifter))
             return [];
         for (let i of sifter) {
             let r = i.parser(this, element);
-            if (!is.un(r))
+            if (!lib_1.is.un(r))
                 return r;
         }
         return [];
     }
     createElement(sym, status, attrs, children) {
         const creator = this.creators.get(sym);
-        if (is.un(creator))
+        if (lib_1.is.un(creator))
             return [];
         return creator(status, attrs, children);
     }
@@ -383,24 +366,11 @@ exports.default = Context;
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.Context = exports.parse = exports.preproc = exports.newParagraph = exports.newCreators = exports.newSifters = exports.newParsers = exports.newSyms = exports.util = void 0;
-exports.util = __webpack_require__(/*! ./util */ "./src/util.ts");
-var newSyms_1 = __webpack_require__(/*! ./newSyms */ "./src/newSyms.ts");
-Object.defineProperty(exports, "newSyms", ({ enumerable: true, get: function () { return newSyms_1.default; } }));
-var newParsers_1 = __webpack_require__(/*! ./newParsers */ "./src/newParsers.ts");
-Object.defineProperty(exports, "newParsers", ({ enumerable: true, get: function () { return newParsers_1.default; } }));
-var newSifters_1 = __webpack_require__(/*! ./newSifters */ "./src/newSifters.ts");
-Object.defineProperty(exports, "newSifters", ({ enumerable: true, get: function () { return newSifters_1.default; } }));
-var newCreators_1 = __webpack_require__(/*! ./newCreators */ "./src/newCreators.ts");
-Object.defineProperty(exports, "newCreators", ({ enumerable: true, get: function () { return newCreators_1.default; } }));
-var newParagraph_1 = __webpack_require__(/*! ./newParagraph */ "./src/newParagraph.ts");
-Object.defineProperty(exports, "newParagraph", ({ enumerable: true, get: function () { return newParagraph_1.default; } }));
-var preproc_1 = __webpack_require__(/*! ./preproc */ "./src/preproc.ts");
-Object.defineProperty(exports, "preproc", ({ enumerable: true, get: function () { return preproc_1.default; } }));
-var parse_1 = __webpack_require__(/*! ./parse */ "./src/parse.ts");
-Object.defineProperty(exports, "parse", ({ enumerable: true, get: function () { return parse_1.default; } }));
-var Context_1 = __webpack_require__(/*! ./Context */ "./src/Context.ts");
-Object.defineProperty(exports, "Context", ({ enumerable: true, get: function () { return Context_1.default; } }));
+exports.util = exports.Context = void 0;
+const Context_1 = __webpack_require__(/*! ./Context */ "./src/Context.ts");
+exports.Context = Context_1.default;
+const util = __webpack_require__(/*! ./util */ "./src/util.ts");
+exports.util = util;
 
 
 /***/ }),
@@ -416,14 +386,12 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const lib_1 = __webpack_require__(/*! @yogurtcat/lib */ "@yogurtcat/lib");
 const util_1 = __webpack_require__(/*! ./util */ "./src/util.ts");
 const newSyms_1 = __webpack_require__(/*! ./newSyms */ "./src/newSyms.ts");
-const { is, to } = lib_1.base;
-const { Dict } = lib_1.container;
-const article = (status, attrs, children) => [util_1.newElement(`'article'`, children)];
-const section = (status, attrs, children) => [util_1.newElement(`'section'`, children)];
-const figure = (status, attrs, children) => [util_1.newElement(`'figure'`, children)];
-const paragraph = (status, attrs, children) => [util_1.newElement(`'p'`, children)];
-const headline = (status, attrs, children) => [util_1.newElement(`'h${status.chapter}'`, children)];
-const caption = (status, attrs, children) => [util_1.newElement(`'caption'`, children)];
+const article = (status, attrs, children) => [util_1.newCode(`'article'`, children)];
+const section = (status, attrs, children) => [util_1.newCode(`'section'`, children)];
+const figure = (status, attrs, children) => [util_1.newCode(`'figure'`, children)];
+const paragraph = (status, attrs, children) => [util_1.newCode(`'p'`, children)];
+const headline = (status, attrs, children) => [util_1.newCode(`'h${status.chapter}'`, children)];
+const caption = (status, attrs, children) => [util_1.newCode(`'caption'`, children)];
 const align = (status, attrs, children) => {
     let name;
     if (status.paragraph === 1 && status.line_block === true)
@@ -431,133 +399,132 @@ const align = (status, attrs, children) => {
     else
         name = `'span'`;
     let [cls] = attrs;
-    if (is.un(cls))
+    if (lib_1.is.un(cls))
         cls = '0';
-    return [util_1.mount(util_1.newElement(name, children), util_1.addClass('a'), util_1.addClass('a' + cls))];
+    return [lib_1.decor.$(util_1.newCode(name, children), util_1.addClass('a'), util_1.addClass('a' + cls))];
 };
 const color = (status, attrs, children) => {
     let [cls] = attrs;
-    if (is.un(cls))
+    if (lib_1.is.un(cls))
         cls = '0';
-    return [util_1.mount(util_1.newElement(`'span'`, children), util_1.addClass('c'), util_1.addClass('c' + cls))];
+    return [lib_1.decor.$(util_1.newCode(`'span'`, children), util_1.addClass('c'), util_1.addClass('c' + cls))];
 };
 const highlight = (status, attrs, children) => {
     let [cls] = attrs;
-    if (is.un(cls))
+    if (lib_1.is.un(cls))
         cls = '0';
-    return [util_1.mount(util_1.newElement(`'mark'`, children), util_1.addClass('h' + cls))];
+    return [lib_1.decor.$(util_1.newCode(`'mark'`, children), util_1.addClass('h' + cls))];
 };
-const bold = (status, attrs, children) => [util_1.newElement(`'strong'`, children)];
-const italic = (status, attrs, children) => [util_1.newElement(`'em'`, children)];
-const underline = (status, attrs, children) => [util_1.newElement(`'ins'`, children)];
-const strike = (status, attrs, children) => [util_1.newElement(`'del'`, children)];
-const superscript = (status, attrs, children) => [util_1.newElement(`'sup'`, children)];
-const subscript = (status, attrs, children) => [util_1.newElement(`'sub'`, children)];
+const bold = (status, attrs, children) => [util_1.newCode(`'strong'`, children)];
+const italic = (status, attrs, children) => [util_1.newCode(`'em'`, children)];
+const underline = (status, attrs, children) => [util_1.newCode(`'ins'`, children)];
+const strike = (status, attrs, children) => [util_1.newCode(`'del'`, children)];
+const superscript = (status, attrs, children) => [util_1.newCode(`'sup'`, children)];
+const subscript = (status, attrs, children) => [util_1.newCode(`'sub'`, children)];
 const hyperlink = (status, attrs, children) => {
     let [url, target] = attrs;
-    if (is.un(url))
+    if (lib_1.is.un(url))
         return [];
-    if (is.un(target))
+    if (lib_1.is.un(target))
         target = '_blank';
-    url = to.str(url);
-    target = to.str(target);
+    url = lib_1.to.str(url);
+    target = lib_1.to.str(target);
     if (children.length <= 0)
         children = [url];
-    return [util_1.mount(util_1.newElement(`'a'`, children), util_1.addAttrs('href', url), util_1.addAttrs('target', target))];
+    return [lib_1.decor.$(util_1.newCode(`'a'`, children), util_1.addAttrs('href', url), util_1.addAttrs('target', target))];
 };
 const space = (status, attrs, children) => {
     const c = '\u00A0';
     let [num] = attrs;
     num = Number(num);
-    if (is.nan(num) || num < 0)
+    if (lib_1.is.nan(num) || num < 0)
         num = 0;
     const n = 10;
     const m = Math.floor(num / n);
     const q = num % n;
-    const r = new Array(m).fill(to.str(c.repeat(n)));
+    const r = new Array(m).fill(lib_1.to.str(c.repeat(n)));
     if (q > 0)
-        r.push(to.str(c.repeat(q)));
+        r.push(lib_1.to.str(c.repeat(q)));
     return r;
 };
 const newline = (status, attrs, children) => {
     let [num] = attrs;
     num = Number(num);
-    if (is.nan(num) || num < 0)
+    if (lib_1.is.nan(num) || num < 0)
         num = 0;
-    return new Array(num).fill(util_1.newElement(`'br'`));
+    return new Array(num).fill(util_1.newCode(`'br'`));
 };
 const separate = (status, attrs, children) => {
     let [num] = attrs;
     num = Number(num);
-    if (is.nan(num) || num < 0)
+    if (lib_1.is.nan(num) || num < 0)
         num = 0;
-    return new Array(num).fill(util_1.newElement(`'hr'`));
+    return new Array(num).fill(util_1.newCode(`'hr'`));
 };
 const image = (status, attrs, children) => {
     let [img, width, height] = attrs;
     let [txt] = children;
-    if (is.un(img))
+    if (lib_1.is.un(img))
         return [];
-    if (is.un(width))
+    if (lib_1.is.un(width))
         width = '0';
-    if (is.un(height))
+    if (lib_1.is.un(height))
         height = '0';
-    img = to.str(img);
-    txt = is.un(txt) ? null : util_1.addAttrs('alt', to.str(txt));
-    width = width === '0' ? null : util_1.addAttrs('width', to.str(width));
-    height = height === '0' ? null : util_1.addAttrs('height', to.str(height));
-    return [util_1.mount(util_1.newElement(`'img'`), util_1.addAttrs('src', img), txt, width, height)];
+    img = lib_1.to.str(img);
+    txt = lib_1.is.un(txt) ? null : util_1.addAttrs('alt', lib_1.to.str(txt));
+    width = width === '0' ? null : util_1.addAttrs('width', lib_1.to.str(width));
+    height = height === '0' ? null : util_1.addAttrs('height', lib_1.to.str(height));
+    return [lib_1.decor.$(util_1.newCode(`'img'`), util_1.addAttrs('src', img), txt, width, height)];
 };
 const formula = (status, attrs, children) => {
     let [width, height, mode] = attrs;
     let [txt] = children;
-    if (is.un(txt))
+    if (lib_1.is.un(txt))
         return [];
-    if (is.un(mode))
+    if (lib_1.is.un(mode))
         mode = 'svg';
-    if (is.un(width))
+    if (lib_1.is.un(width))
         width = '0';
-    if (is.un(height))
+    if (lib_1.is.un(height))
         height = '0';
-    const img = to.str('https://latex.codecogs.com/' + mode + '.latex?' + encodeURIComponent(txt));
-    width = width === '0' ? null : util_1.addAttrs('width', to.str(width));
-    height = height === '0' ? null : util_1.addAttrs('height', to.str(height));
-    return [util_1.mount(util_1.newElement(`'img'`), util_1.addClass('f'), util_1.addAttrs('src', img), width, height)];
+    const img = lib_1.to.str('https://latex.codecogs.com/' + mode + '.latex?' + encodeURIComponent(txt));
+    width = width === '0' ? null : util_1.addAttrs('width', lib_1.to.str(width));
+    height = height === '0' ? null : util_1.addAttrs('height', lib_1.to.str(height));
+    return [lib_1.decor.$(util_1.newCode(`'img'`), util_1.addClass('f'), util_1.addAttrs('src', img), width, height)];
 };
-const quote = (status, attrs, children) => [util_1.newElement(`'blockquote'`, children)];
+const quote = (status, attrs, children) => [util_1.newCode(`'blockquote'`, children)];
 const code = (status, attrs, children) => {
     if (status.paragraph === 1 && status.line_block === true) {
         let [lang] = attrs;
         let [txt] = children;
-        lang = is.un(attrs) ? null : util_1.addClass(lang);
-        txt = to.str(txt);
-        return [util_1.newElement(`'pre'`, [
-                util_1.mount(util_1.newElement(`'code'`, [txt]), lang)
+        lang = lib_1.is.un(attrs) ? null : util_1.addClass(lang);
+        txt = lib_1.to.str(txt);
+        return [util_1.newCode(`'pre'`, [
+                lib_1.decor.$(util_1.newCode(`'code'`, [txt]), lang)
             ])];
     }
     let [mode] = attrs;
     let [txt] = children;
-    if (is.un(mode))
+    if (lib_1.is.un(mode))
         mode = 'c';
     mode = {
         c: 'code',
         s: 'samp',
         v: 'var'
     }[mode] || 'code';
-    mode = to.str(mode);
-    txt = to.str(txt);
-    return [util_1.newElement(mode, [txt])];
+    mode = lib_1.to.str(mode);
+    txt = lib_1.to.str(txt);
+    return [util_1.newCode(mode, [txt])];
 };
-const keyboard = (status, attrs, children) => [util_1.newElement(`'kbd'`, children)];
+const keyboard = (status, attrs, children) => [util_1.newCode(`'kbd'`, children)];
 const list = (status, attrs, children) => [];
 const table = (status, attrs, children) => [];
 const audio = (status, attrs, children) => [];
 const video = (status, attrs, children) => [];
-function default_1(syms) {
-    if (is.un(syms))
+exports.default = (syms) => {
+    if (lib_1.is.un(syms))
         syms = newSyms_1.default();
-    syms = to.obj(syms);
-    return new Dict({
+    return {
         [syms.article]: article,
         [syms.section]: section,
         [syms.figure]: figure,
@@ -586,28 +553,25 @@ function default_1(syms) {
         [syms.table]: table,
         [syms.audio]: audio,
         [syms.video]: video
-    });
-}
-exports.default = default_1;
+    };
+};
 
 
 /***/ }),
 
-/***/ "./src/newParagraph.ts":
-/*!*****************************!*\
-  !*** ./src/newParagraph.ts ***!
-  \*****************************/
+/***/ "./src/newParamode.ts":
+/*!****************************!*\
+  !*** ./src/newParamode.ts ***!
+  \****************************/
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const lib_1 = __webpack_require__(/*! @yogurtcat/lib */ "@yogurtcat/lib");
 const newSyms_1 = __webpack_require__(/*! ./newSyms */ "./src/newSyms.ts");
-const { is, to } = lib_1.base;
-function default_1(syms) {
-    if (is.un(syms))
+exports.default = (syms) => {
+    if (lib_1.is.un(syms))
         syms = newSyms_1.default();
-    syms = to.obj(syms);
     return {
         line: new Set([
             syms.align,
@@ -642,8 +606,7 @@ function default_1(syms) {
             syms.video
         ])
     };
-}
-exports.default = default_1;
+};
 
 
 /***/ }),
@@ -657,10 +620,7 @@ exports.default = default_1;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const lib_1 = __webpack_require__(/*! @yogurtcat/lib */ "@yogurtcat/lib");
-const util_1 = __webpack_require__(/*! ./util */ "./src/util.ts");
 const newSyms_1 = __webpack_require__(/*! ./newSyms */ "./src/newSyms.ts");
-const { is, to } = lib_1.base;
-const { Dict } = lib_1.container;
 const main = (context, element) => {
     element = context.parseChildrenVars(element);
     element = context.parseChildrenContinue(element);
@@ -678,11 +638,11 @@ const def = (context, element) => {
     const vars = context.vars;
     for (let i of element.children) {
         let t = i.children[0];
-        if (is.obj(t))
+        if (lib_1.is.obj(t))
             continue;
         let k;
-        [k, t] = util_1.splitLeft(t);
-        if (is.un(t)) {
+        [k, t] = lib_1.str.splitLeft(t);
+        if (lib_1.is.un(t)) {
             if (i.children.length === 1)
                 vars.set(k, []);
             continue;
@@ -746,11 +706,10 @@ const code = (context, element) => {
     const status = element.status;
     return context.createElement(sym, status, attrs, children);
 };
-function default_1(syms) {
-    if (is.un(syms))
+exports.default = (syms) => {
+    if (lib_1.is.un(syms))
         syms = newSyms_1.default();
-    syms = to.obj(syms);
-    return new Dict({
+    return {
         [syms.main]: main,
         [syms.def]: def,
         [syms.closure]: closure,
@@ -775,9 +734,8 @@ function default_1(syms) {
         [syms.quote]: dft,
         [syms.code]: code,
         [syms.keyboard]: dft,
-    });
-}
-exports.default = default_1;
+    };
+};
 
 
 /***/ }),
@@ -791,31 +749,31 @@ exports.default = default_1;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const lib_1 = __webpack_require__(/*! @yogurtcat/lib */ "@yogurtcat/lib");
-const util_1 = __webpack_require__(/*! ./util */ "./src/util.ts");
 const newSyms_1 = __webpack_require__(/*! ./newSyms */ "./src/newSyms.ts");
-const { is, to } = lib_1.base;
-const { Dict } = lib_1.container;
 function isClosureFirstLine(element, sym) {
     return element.children.length >= 1 && isParagraphOneElem(element.children[0], sym);
+}
+function isClosureLastLine(element, sym) {
+    return element.children.length >= 1 && isParagraphOneElem(lib_1.arr.last(element.children), sym);
 }
 function isParagraphOneElem(element, sym) {
     if (element.children.length === 1) {
         const elem = element.children[0];
-        if (!is.obj(elem))
+        if (!lib_1.is.obj(elem))
             return false;
-        return is.un(sym) || elem.elems.length >= 1 && elem.elems[0].elem === sym;
+        return lib_1.is.un(sym) || elem.elems.length >= 1 && elem.elems[0].elem === sym;
     }
     return false;
 }
 function isParagraphOneStr(element) {
     if (element.children.length === 1) {
         const elem = element.children[0];
-        return is.str(elem);
+        return lib_1.is.str(elem);
     }
     return false;
 }
 const article = (context, element) => {
-    if (!is.un(element.status.chapter))
+    if (!lib_1.is.un(element.status.chapter))
         return null;
     let sym = context.syms.get('headline');
     if (!isClosureFirstLine(element, sym))
@@ -831,7 +789,7 @@ const article = (context, element) => {
     return context.createElement(sym, status, attrs, children);
 };
 const section = (context, element) => {
-    if (is.un(element.status.chapter))
+    if (lib_1.is.un(element.status.chapter))
         return null;
     let sym = context.syms.get('headline');
     if (!isClosureFirstLine(element, sym))
@@ -846,10 +804,10 @@ const section = (context, element) => {
     return context.createElement(sym, status, attrs, children);
 };
 const figure = (context, element) => {
-    if (!is.un(element.status.figure))
+    if (!lib_1.is.un(element.status.figure))
         return null;
     let sym = context.syms.get('caption');
-    if (!isClosureFirstLine(element, sym))
+    if (!isClosureFirstLine(element, sym) || !isClosureLastLine(element, sym))
         return null;
     element.status.figure = true;
     element.status.paragraph = null;
@@ -863,8 +821,8 @@ const figure = (context, element) => {
 const oneStr = (context, element) => {
     if (!isParagraphOneStr(element))
         return null;
-    const children = [to.str(element.children[0])];
-    if (!is.un(element.status.paragraph))
+    const children = [lib_1.to.str(element.children[0])];
+    if (!lib_1.is.un(element.status.paragraph))
         return children;
     element.status.paragraph = 1;
     const sym = context.syms.get('paragraph');
@@ -876,11 +834,11 @@ const oneElemLine = (context, element) => {
     if (!isParagraphOneElem(element))
         return null;
     const elem = element.children[0].elems[0].elem;
-    const set = context.paragraph.line;
+    const set = context.paramode.line;
     if (!set.has(elem))
         return null;
     let p = true;
-    if (is.un(element.status.paragraph)) {
+    if (lib_1.is.un(element.status.paragraph)) {
         element.status.paragraph = 1;
         p = false;
     }
@@ -898,10 +856,10 @@ const oneElemBlock = (context, element) => {
     if (!isParagraphOneElem(element))
         return null;
     const elem = element.children[0].elems[0].elem;
-    const set = context.paragraph.block;
+    const set = context.paramode.block;
     if (!set.has(elem))
         return null;
-    if (!is.un(element.status.paragraph))
+    if (!lib_1.is.un(element.status.paragraph))
         return null;
     element.status.line_block = true;
     element.status.paragraph = 1;
@@ -912,18 +870,18 @@ const many = (context, element) => {
     if (element.children.length <= 1)
         return null;
     let p = true;
-    if (is.un(element.status.paragraph)) {
+    if (lib_1.is.un(element.status.paragraph)) {
         element.status.paragraph = element.children.length;
         p = false;
     }
     element = context.parseChildrenCopyStatus(element);
-    const set = context.paragraph.line;
+    const set = context.paramode.line;
     const children = [];
     for (let i of element.children) {
-        if (is.str(i))
-            children.push(to.str(i));
+        if (lib_1.is.str(i))
+            children.push(lib_1.to.str(i));
         else if (set.has(i.elems[0].elem))
-            util_1.appends(children, context.parseParsers(i));
+            lib_1.arr.appends(children, context.parseParsers(i));
     }
     if (p)
         return children;
@@ -932,11 +890,10 @@ const many = (context, element) => {
     const attrs = element.elems[0].attrs;
     return context.createElement(sym, status, attrs, children);
 };
-function default_1(syms) {
-    if (is.un(syms))
+exports.default = (syms) => {
+    if (lib_1.is.un(syms))
         syms = newSyms_1.default();
-    syms = to.obj(syms);
-    return new Dict({
+    return {
         [syms.closure]: [
             { parser: figure, desc: 'figure' },
             { parser: section, desc: 'section' },
@@ -948,9 +905,8 @@ function default_1(syms) {
             { parser: oneElemLine, desc: 'one elem line' },
             { parser: oneStr, desc: 'one str' }
         ]
-    });
-}
-exports.default = default_1;
+    };
+};
 
 
 /***/ }),
@@ -959,50 +915,45 @@ exports.default = default_1;
 /*!************************!*\
   !*** ./src/newSyms.ts ***!
   \************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ ((__unused_webpack_module, exports) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const lib_1 = __webpack_require__(/*! @yogurtcat/lib */ "@yogurtcat/lib");
-const { Dict } = lib_1.container;
-function default_1() {
-    return new Dict({
-        main: '',
-        def: '#',
-        var: ':',
-        continue: '/',
-        closure: '.',
-        article: '. article',
-        section: '. section',
-        figure: '. figure',
-        paragraph: 'p',
-        headline: 'H',
-        caption: 'G',
-        align: 'a',
-        color: 'c',
-        highlight: 'h',
-        bold: 'b',
-        italic: 'i',
-        underline: 'u',
-        strike: 's',
-        superscript: '^',
-        subscript: '_',
-        hyperlink: '@',
-        space: '+',
-        newline: '*',
-        separate: '-',
-        image: 'I',
-        formula: 'F',
-        quote: 'Q',
-        code: 'C',
-        keyboard: 'K',
-        list: 'L',
-        table: 'T',
-        audio: 'A',
-        video: 'V'
-    });
-}
-exports.default = default_1;
+exports.default = () => ({
+    main: '',
+    def: '#',
+    var: ':',
+    continue: '/',
+    closure: '.',
+    article: '. article',
+    section: '. section',
+    figure: '. figure',
+    paragraph: 'p',
+    headline: 'H',
+    caption: 'G',
+    align: 'a',
+    color: 'c',
+    highlight: 'h',
+    bold: 'b',
+    italic: 'i',
+    underline: 'u',
+    strike: 's',
+    superscript: '^',
+    subscript: '_',
+    hyperlink: '@',
+    space: '+',
+    newline: '*',
+    separate: '-',
+    image: 'I',
+    formula: 'F',
+    quote: 'Q',
+    code: 'C',
+    keyboard: 'K',
+    list: 'L',
+    table: 'T',
+    audio: 'A',
+    video: 'V'
+});
 
 
 /***/ }),
@@ -1017,17 +968,11 @@ exports.default = default_1;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const lib_1 = __webpack_require__(/*! @yogurtcat/lib */ "@yogurtcat/lib");
 const util_1 = __webpack_require__(/*! ./util */ "./src/util.ts");
-const { to, asrt } = lib_1.base;
 const CHILDREN = Symbol('CHILDREN');
 const ELEMS = Symbol('ELEMS');
 const ATTRS = Symbol('ATTRS');
 function default_1(text) {
-    let r = {
-        elems: [],
-        children: [],
-        level: -1,
-        status: {}
-    };
+    let r = util_1.newElement();
     let sk = [];
     let lv = 0;
     let hr;
@@ -1041,20 +986,15 @@ function default_1(text) {
             case CHILDREN:
                 {
                     if (c === '$' && i + 1 < text.length) {
-                        if (to.has(' \n', text[i + 1]))
+                        if (lib_1.to.has(' \n', text[i + 1]))
                             i++;
                         else {
                             if (p < i)
                                 r.children.push(text.slice(p, i));
-                            if (to.has('$(){}', text[i + 1]))
+                            if (lib_1.to.has('$(){}', text[i + 1]))
                                 p = ++i;
                             else {
-                                let t = {
-                                    elems: [],
-                                    children: [],
-                                    level: -1,
-                                    status: {}
-                                };
+                                let t = util_1.newElement();
                                 r.children.push(t);
                                 sk.push(r);
                                 r = t;
@@ -1079,7 +1019,7 @@ function default_1(text) {
                 {
                     if (c === ' ' && text[i + 1] === '{')
                         c = text[++i];
-                    if (to.has('$)} \n', c)) {
+                    if (lib_1.to.has('$)} \n', c)) {
                         r = sk.pop();
                         p = i--;
                         z = CHILDREN;
@@ -1105,7 +1045,7 @@ function default_1(text) {
             case ATTRS:
                 {
                     if (c === '$') {
-                        if (to.has(' \n', text[i + 1]))
+                        if (lib_1.to.has(' \n', text[i + 1]))
                             i++;
                         else {
                             if (p < i)
@@ -1120,7 +1060,7 @@ function default_1(text) {
                         if (hr <= 0) {
                             if (p < i)
                                 attrs.push(text.slice(p, i));
-                            util_1.last(r.elems).attrs = util_1.split(util_1.trim(attrs.join('')));
+                            lib_1.arr.last(r.elems).attrs = lib_1.str.split(lib_1.str.trim(lib_1.str.join(attrs)));
                             z = ELEMS;
                         }
                     }
@@ -1130,7 +1070,7 @@ function default_1(text) {
     }
     if (p < text.length)
         r.children.push(text.slice(p));
-    asrt(sk.length <= 0);
+    lib_1.assert(sk.length <= 0);
     return r;
 }
 exports.default = default_1;
@@ -1146,9 +1086,10 @@ exports.default = default_1;
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const util_1 = __webpack_require__(/*! ./util */ "./src/util.ts");
-function default_1(context, text) {
-    const vars = context.vars;
+const lib_1 = __webpack_require__(/*! @yogurtcat/lib */ "@yogurtcat/lib");
+function default_1(vars, text, anoname) {
+    if (lib_1.is.un(anoname))
+        anoname = ano => '~ano-' + String(ano);
     const r = [];
     let ano = 0;
     const vbl = /([^$(){}<> \n]+ ?)?<<</;
@@ -1166,10 +1107,10 @@ function default_1(context, text) {
         }
         p = text.search(bl);
         let sk = text.slice(0, p);
-        let brv = br + util_1.reverse(sk);
-        let k = util_1.trim(sk);
+        let brv = br + lib_1.str.reverse(sk);
+        let k = lib_1.str.trim(sk);
         if (k.length <= 0)
-            k = '~ano-' + String(ano++);
+            k = anoname(ano++);
         text = text.slice(p + bl.length);
         p = text.search(brv);
         if (p < 0) {
@@ -1179,11 +1120,11 @@ function default_1(context, text) {
         }
         let v = text.slice(0, p);
         let sv = `$:(${k}){}`;
-        vars.set(k, [v]);
         r.push(sv);
+        vars.set(k, [v]);
         text = text.slice(p + brv.length);
     }
-    return r.join('');
+    return lib_1.str.join(r);
 }
 exports.default = default_1;
 
@@ -1198,111 +1139,45 @@ exports.default = default_1;
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.addAttrs = exports.addClass = exports.setKey = exports.getKey = exports.addKey = exports.mount = exports.newElement = exports.copyStatus = exports.reverse = exports.tightSpaces = exports.splitLines = exports.split = exports.splitLeft = exports.trim = exports.trimRight = exports.trimLeft = exports.appends = exports.last = void 0;
+exports.addAttrs = exports.addClass = exports.copyStatus = exports.newCode = exports.newElement = void 0;
 const lib_1 = __webpack_require__(/*! @yogurtcat/lib */ "@yogurtcat/lib");
-const { is, to, init } = lib_1.base;
-function last(arr, item) {
-    if (is.un(item))
-        return arr[arr.length - 1];
-    arr[arr.length - 1] = item;
-    return null;
+function newElement() {
+    return {
+        elems: [],
+        children: [],
+        level: -1,
+        status: {}
+    };
 }
-exports.last = last;
-function appends(arr, items) {
-    arr.splice(arr.length, 0, ...items);
-}
-exports.appends = appends;
-function trimLeft(s) {
-    return s.replace(/^[ \n]+/, '');
-}
-exports.trimLeft = trimLeft;
-function trimRight(s) {
-    return s.replace(/[ \n]+$/, '');
-}
-exports.trimRight = trimRight;
-function trim(s) {
-    return trimRight(trimLeft(s));
-}
-exports.trim = trim;
-function splitLeft(s) {
-    const i = s.indexOf(' ');
-    if (i < 0)
-        return [s, null];
-    return [s.slice(0, i), s.slice(i + 1, s.length)];
-}
-exports.splitLeft = splitLeft;
-function split(s) {
-    return s.split(/[ \n]+/);
-}
-exports.split = split;
-function splitLines(s) {
-    return s.split(/\n+/);
-}
-exports.splitLines = splitLines;
-function tightSpaces(s) {
-    return s.replace(/ +/g, ' ');
-}
-exports.tightSpaces = tightSpaces;
-function reverse(s) {
-    return s.split('').reverse().join('');
-}
-exports.reverse = reverse;
-function copyStatus(tgt, src) {
-    tgt.status = to.obj(src.status);
-}
-exports.copyStatus = copyStatus;
-function newElement(name, children) {
+exports.newElement = newElement;
+function newCode(name, children) {
     const r = {
         X: 'H',
         N: name
     };
-    if (!is.un(children))
+    if (!lib_1.is.un(children))
         r['C'] = {
             X: 'A',
             I: children
         };
     return r;
 }
-exports.newElement = newElement;
-function mount(obj, ...funcs) {
-    for (let i of funcs) {
-        if (is.un(i))
-            continue;
-        let t = i(obj);
-        if (!is.un(t))
-            obj = t;
-    }
-    return obj;
+exports.newCode = newCode;
+function copyStatus(tgt, src) {
+    tgt.status = lib_1.to.obj(src.status);
 }
-exports.mount = mount;
-function addKey(key, val) {
-    return obj => {
-        if (is.un(obj[key]))
-            obj[key] = val();
-    };
-}
-exports.addKey = addKey;
-function getKey(key) {
-    return obj => obj[key];
-}
-exports.getKey = getKey;
-function setKey(key, val) {
-    return obj => {
-        obj[key] = val;
-    };
-}
-exports.setKey = setKey;
+exports.copyStatus = copyStatus;
 function addClass(key, val) {
-    if (is.un(val))
+    if (lib_1.is.un(val))
         val = `true`;
     return obj => {
-        mount(obj, addKey('A', init.obj), getKey('A'), setKey('X', 'O'), addKey('I', init.obj), getKey('I'), addKey('class', init.obj), getKey('class'), setKey('X', 'O'), addKey('I', init.obj), getKey('I'), setKey(key, val));
+        lib_1.decor.$(obj, lib_1.decor.obj.add('A', lib_1.init.obj), lib_1.decor.obj.get('A'), lib_1.decor.obj.set('X', 'O'), lib_1.decor.obj.add('I', lib_1.init.obj), lib_1.decor.obj.get('I'), lib_1.decor.obj.add('class', lib_1.init.obj), lib_1.decor.obj.get('class'), lib_1.decor.obj.set('X', 'O'), lib_1.decor.obj.add('I', lib_1.init.obj), lib_1.decor.obj.get('I'), lib_1.decor.obj.set(key, val));
     };
 }
 exports.addClass = addClass;
 function addAttrs(key, val) {
     return obj => {
-        mount(obj, addKey('A', init.obj), getKey('A'), setKey('X', 'O'), addKey('I', init.obj), getKey('I'), addKey('attrs', init.obj), getKey('attrs'), setKey('X', 'O'), addKey('I', init.obj), getKey('I'), setKey(key, val));
+        lib_1.decor.$(obj, lib_1.decor.obj.add('A', lib_1.init.obj), lib_1.decor.obj.get('A'), lib_1.decor.obj.set('X', 'O'), lib_1.decor.obj.add('I', lib_1.init.obj), lib_1.decor.obj.get('I'), lib_1.decor.obj.add('attrs', lib_1.init.obj), lib_1.decor.obj.get('attrs'), lib_1.decor.obj.set('X', 'O'), lib_1.decor.obj.add('I', lib_1.init.obj), lib_1.decor.obj.get('I'), lib_1.decor.obj.set(key, val));
     };
 }
 exports.addAttrs = addAttrs;
@@ -1352,4 +1227,3 @@ module.exports = require("@yogurtcat/lib");;
 /******/ 	return __webpack_require__("./src/index.ts");
 /******/ })()
 ;
-});

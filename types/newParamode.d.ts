@@ -1,5 +1,5 @@
-import { creator } from './util';
 declare const _default: (syms?: any) => {
-    [x: number]: creator;
+    line: Set<string>;
+    block: Set<string>;
 };
 export default _default;

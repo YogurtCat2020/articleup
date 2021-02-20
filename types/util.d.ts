@@ -1,39 +1,30 @@
+import { decorator, Dict } from '@yogurtcat/lib';
 import Context from './Context';
-export interface Element {
+export interface element {
     elems: {
         elem: string;
         attrs: string[];
     }[];
-    children: (string | Element)[];
+    children: elements[];
     level: number;
     status: any;
 }
-export declare type Parser = (context: Context, element: Element) => (string | object)[];
-export declare type Sifter = {
-    parser: Parser;
+export declare type elements = string | element;
+export declare type code = any;
+export declare type codes = string | code;
+export declare type vars = Dict<string, elements[]>;
+export declare type parser = (context: Context, element: element) => codes[];
+export declare type sifter = {
+    parser: parser;
     desc: string;
 };
-export declare type Creator = (status: any, attrs: any[], children: any[]) => (string | object)[];
-export declare type Paragraph = {
+export declare type creator = (status: any, attrs: any[], children: any[]) => codes[];
+export declare type paramode = {
     line: Set<string>;
     block: Set<string>;
 };
-export declare type Decor = (obj: any) => any;
-export declare function last(arr: any[], item?: any): any;
-export declare function appends<T>(arr: any[], items: any[]): void;
-export declare function trimLeft(s: string): string;
-export declare function trimRight(s: string): string;
-export declare function trim(s: string): string;
-export declare function splitLeft(s: string): [string, string];
-export declare function split(s: string): string[];
-export declare function splitLines(s: string): string[];
-export declare function tightSpaces(s: string): string;
-export declare function reverse(s: string): string;
-export declare function copyStatus(tgt: Element, src: Element): void;
-export declare function newElement(name: string, children?: any[]): object;
-export declare function mount(obj: any, ...funcs: Decor[]): any;
-export declare function addKey(key: string, val: () => any): Decor;
-export declare function getKey(key: string): Decor;
-export declare function setKey(key: string, val: any): Decor;
-export declare function addClass(key: string, val?: string): Decor;
-export declare function addAttrs(key: string, val: string): Decor;
+export declare function newElement(): element;
+export declare function newCode(name: string, children?: any[]): code;
+export declare function copyStatus(tgt: element, src: element): void;
+export declare function addClass(key: string, val?: string): decorator;
+export declare function addAttrs(key: string, val: string): decorator;

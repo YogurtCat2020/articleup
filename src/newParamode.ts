@@ -1,14 +1,9 @@
-import {base} from '@yogurtcat/lib'
-import {Paragraph} from './util'
+import {is} from '@yogurtcat/lib'
 import newSyms from './newSyms'
 
-const {is, to} = base
 
-
-export default function(syms?: any): Paragraph {
+export default (syms?: any) => {
   if(is.un(syms)) syms = newSyms()
-
-  syms = to.obj(syms)
 
   return {
     line: new Set<string>([

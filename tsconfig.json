@@ -2,15 +2,16 @@
   "compilerOptions": {
     "moduleResolution": "node",
     "module": "commonjs",
-    "target": "es2015",
+    "target": "es2018",
     "experimentalDecorators": true,
     "declaration": true,
     "removeComments": true,
     "noImplicitAny": false,
-    "sourceMap": false,
+    "sourceMap": true,
     "outDir": "types"
   },
   "exclude": [
+    "public",
     "dist",
     "types"
   ]

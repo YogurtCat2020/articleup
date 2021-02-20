@@ -1,7 +1,5 @@
-import {base} from '@yogurtcat/lib'
-import {Element, last, split, trim} from './util'
-
-const {to, asrt} = base
+import {to, str, arr, assert} from '@yogurtcat/lib'
+import {element, newElement} from './util'
 
 
 const CHILDREN = Symbol('CHILDREN')
@@ -9,14 +7,9 @@ const ELEMS = Symbol('ELEMS')
 const ATTRS = Symbol('ATTRS')
 
 
-export default function(text: string): Element {
-  let r: Element = {
-    elems: [],
-    children: [],
-    level: -1,
-    status: {}
-  }
-  let sk: Element[] = []
+export default function(text: string): element {
+  let r = newElement()
+  let sk: element[] = []
   let lv = 0
   let hr: number
   let attrs: string[]
@@ -35,12 +28,7 @@ export default function(text: string): Element {
             if(p < i) r.children.push(text.slice(p, i))
             if(to.has('$(){}', text[i+1])) p = ++i
             else {
-              let t: Element = {
-                elems: [],
-                children: [],
-                level: -1,
-                status: {}
-              }
+              let t = newElement()
               r.children.push(t)
               sk.push(r)
               r = t
@@ -92,7 +80,7 @@ export default function(text: string): Element {
           hr--
           if(hr <= 0) {
             if(p < i) attrs.push(text.slice(p, i))
-            last(r.elems).attrs = split(trim(attrs.join('')))
+            arr.last(r.elems).attrs = str.split(str.trim(str.join(attrs)))
             z = ELEMS
           }
         }
@@ -102,6 +90,6 @@ export default function(text: string): Element {
 
   if(p < text.length) r.children.push(text.slice(p))
 
-  asrt(sk.length <= 0)
+  assert(sk.length <= 0)
   return r
 }

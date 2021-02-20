@@ -1,2 +1,3 @@
-import Context from './Context';
-export default function (context: Context, text: string): string;
+import { vars } from './util';
+export declare type anoname = (ano: number) => string;
+export default function (vars: vars, text: string, anoname?: anoname): string;
