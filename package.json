@@ -31,6 +31,7 @@
     "webpack-cli": "^4.2.0"
   },
   "dependencies": {
-    "@yogurtcat/lib": "^1.1.0"
+    "@yogurtcat/lib": "^1.1.0",
+    "dasta": "^1.1.0"
   }
 }

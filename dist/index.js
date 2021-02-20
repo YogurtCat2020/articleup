@@ -4,7 +4,6 @@
  * git: https://github.com/YogurtCat2020/articleup
  * Released under the MIT License.
  */
-module.exports =
 /******/ (() => { // webpackBootstrap
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
@@ -354,23 +353,6 @@ class Context {
     }
 }
 exports.default = Context;
-
-
-/***/ }),
-
-/***/ "./src/index.ts":
-/*!**********************!*\
-  !*** ./src/index.ts ***!
-  \**********************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.util = exports.Context = void 0;
-const Context_1 = __webpack_require__(/*! ./Context */ "./src/Context.ts");
-exports.Context = Context_1.default;
-const util = __webpack_require__(/*! ./util */ "./src/util.ts");
-exports.util = util;
 
 
 /***/ }),
@@ -1221,9 +1203,23 @@ module.exports = require("@yogurtcat/lib");;
 /******/ 	}
 /******/ 	
 /************************************************************************/
-/******/ 	// module exports must be returned from runtime so entry inlining is disabled
-/******/ 	// startup
-/******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__("./src/index.ts");
+var __webpack_exports__ = {};
+// This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
+(() => {
+var exports = __webpack_exports__;
+/*!**********************!*\
+  !*** ./src/index.ts ***!
+  \**********************/
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.util = exports.Context = void 0;
+const Context_1 = __webpack_require__(/*! ./Context */ "./src/Context.ts");
+exports.Context = Context_1.default;
+const util = __webpack_require__(/*! ./util */ "./src/util.ts");
+exports.util = util;
+
+})();
+
+module.exports = __webpack_exports__;
 /******/ })()
 ;
