@@ -3,12 +3,34 @@ import {creator, newCode, addClass, addAttrs} from './util'
 import newSyms from './newSyms'
 
 
-const article: creator = (status, attrs, children) => [newCode(`'article'`, children)]
-const section: creator = (status, attrs, children) => [newCode(`'section'`, children)]
-const figure: creator = (status, attrs, children) => [newCode(`'figure'`, children)]
+const comment: creator = (status, attrs, children) => {
+  if(status.chapter) return []
+  return [decor.$(newCode(`'div'`, children),
+    addClass('comment')
+  )]
+}
+
+const article: creator = (status, attrs, children) => {
+  if(!status.chapter) return []
+  return [newCode(`'article'`, children)]
+}
+const section: creator = (status, attrs, children) => {
+  if(!status.chapter) return []
+  return [newCode(`'section'`, children)]
+}
+const figure: creator = (status, attrs, children) => {
+  if(!status.chapter) return []
+  return [newCode(`'figure'`, children)]
+}
 const paragraph: creator = (status, attrs, children) => [newCode(`'p'`, children)]
-const headline: creator = (status, attrs, children) => [newCode(`'h${status.chapter}'`, children)]
-const caption: creator = (status, attrs, children) => [newCode(`'caption'`, children)]
+const headline: creator = (status, attrs, children) => {
+  if(!status.chapter) return []
+  return [newCode(`'h${status.chapter}'`, children)]
+}
+const caption: creator = (status, attrs, children) => {
+  if(!status.chapter) return []
+  return [newCode(`'caption'`, children)]
+}
 
 const align: creator = (status, attrs, children) => {
   let name: string
@@ -167,6 +189,8 @@ export default (syms?: any) => {
   if(is.un(syms)) syms = newSyms()
 
   return {
+    [syms.comment]: comment,
+
     [syms.article]: article,
     [syms.section]: section,
     [syms.figure]: figure,

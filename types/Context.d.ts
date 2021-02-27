@@ -1,5 +1,5 @@
 import { Dict } from '@yogurtcat/lib';
-import { element, codes, parser, sifter, creator, paramode } from './util';
+import { element, codes, parser, sifter, creator, paramode, importFile } from './util';
 export default class Context {
     readonly syms: Dict<string, string>;
     readonly vars: Dict<string, (string | element)[]>;
@@ -7,8 +7,10 @@ export default class Context {
     readonly sifters: Dict<string, sifter[]>;
     readonly creators: Dict<string, creator>;
     readonly paramode: paramode;
+    importFile: importFile;
     constructor();
-    parse(text: string): codes[];
+    parseComment(text: string): Promise<codes[]>;
+    parse(text: string): Promise<codes[]>;
     parseVars(element: element): element;
     parseElems(element: element): element;
     parseChildrenVars(element: element): element;
@@ -23,9 +25,9 @@ export default class Context {
     parseChildrenDelElems(element: element): element;
     parseChildrenClosure(element: element): element;
     parseChildrenCopyStatus(element: element): element;
-    parseChildrenParsers(element: element): codes[];
-    parseParsers(element: element): codes[];
-    parseSifters(element: element): codes[];
+    parseChildrenParsers(element: element): Promise<codes[]>;
+    parseParsers(element: element): Promise<codes[]>;
+    parseSifters(element: element): Promise<codes[]>;
     createElement(sym: string, status: any, attrs: any[], children: any[]): codes[];
-    parseCreate(element: element): codes[];
+    parseCreate(element: element): Promise<codes[]>;
 }

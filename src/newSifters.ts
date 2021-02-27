@@ -25,7 +25,7 @@ function isParagraphOneStr(element: element): boolean {
   return false
 }
 
-const article: parser = (context, element) => {
+const article: parser = async(context, element) => {
   if(!is.un(element.status.chapter)) return null
 
   let sym = context.syms.get('headline')
@@ -35,14 +35,14 @@ const article: parser = (context, element) => {
   element.status.figure = null
   element.status.paragraph = null
   element = context.parseChildrenCopyStatus(element)
-  const children = context.parseChildrenParsers(element)
+  const children = await context.parseChildrenParsers(element)
 
   sym = context.syms.get('article')
   const status = element.status
   const attrs = element.elems[0].attrs
   return context.createElement(sym, status, attrs, children)
 }
-const section: parser = (context, element) => {
+const section: parser = async(context, element) => {
   if(is.un(element.status.chapter)) return null
 
   let sym = context.syms.get('headline')
@@ -51,14 +51,14 @@ const section: parser = (context, element) => {
   element.status.chapter += 1
   element.status.paragraph = null
   element = context.parseChildrenCopyStatus(element)
-  const children = context.parseChildrenParsers(element)
+  const children = await context.parseChildrenParsers(element)
 
   sym = context.syms.get('section')
   const status = element.status
   const attrs = element.elems[0].attrs
   return context.createElement(sym, status, attrs, children)
 }
-const figure: parser = (context, element) => {
+const figure: parser = async(context, element) => {
   if(!is.un(element.status.figure)) return null
 
   let sym = context.syms.get('caption')
@@ -67,7 +67,7 @@ const figure: parser = (context, element) => {
   element.status.figure = true
   element.status.paragraph = null
   element = context.parseChildrenCopyStatus(element)
-  const children = context.parseChildrenParsers(element)
+  const children = await context.parseChildrenParsers(element)
 
   sym = context.syms.get('figure')
   const status = element.status
@@ -75,7 +75,7 @@ const figure: parser = (context, element) => {
   return context.createElement(sym, status, attrs, children)
 }
 
-const oneStr: parser = (context, element) => {
+const oneStr: parser = async(context, element) => {
   if(!isParagraphOneStr(element)) return null
 
   const children = [to.str(element.children[0])]
@@ -87,7 +87,7 @@ const oneStr: parser = (context, element) => {
   const attrs = element.elems[0].attrs
   return context.createElement(sym, status, attrs, children)
 }
-const oneElemLine: parser = (context, element) => {
+const oneElemLine: parser = async(context, element) => {
   if(!isParagraphOneElem(element)) return null
 
   const elem = (<element> element.children[0]).elems[0].elem
@@ -102,7 +102,7 @@ const oneElemLine: parser = (context, element) => {
 
   element.status.line_block = false
   element = context.parseChildrenCopyStatus(element)
-  const children = context.parseChildrenParsers(element)
+  const children = await context.parseChildrenParsers(element)
   if(p) return children
 
   const sym = context.syms.get('paragraph')
@@ -110,7 +110,7 @@ const oneElemLine: parser = (context, element) => {
   const attrs = element.elems[0].attrs
   return context.createElement(sym, status, attrs, children)
 }
-const oneElemBlock: parser = (context, element) => {
+const oneElemBlock: parser = async(context, element) => {
   if(!isParagraphOneElem(element)) return null
 
   const elem = (<element> element.children[0]).elems[0].elem
@@ -122,9 +122,9 @@ const oneElemBlock: parser = (context, element) => {
   element.status.line_block = true
   element.status.paragraph = 1
   element = context.parseChildrenCopyStatus(element)
-  return context.parseChildrenParsers(element)
+  return await context.parseChildrenParsers(element)
 }
-const many: parser = (context, element) => {
+const many: parser = async(context, element) => {
   if(element.children.length <= 1) return null
 
   let p = true
@@ -140,7 +140,7 @@ const many: parser = (context, element) => {
   for(let i of element.children) {
     if(is.str(i)) children.push(to.str(i))
     else if(set.has(i.elems[0].elem))
-      arr.appends(children, context.parseParsers(i))
+      arr.appends(children, await context.parseParsers(i))
   }
 
   if(p) return children

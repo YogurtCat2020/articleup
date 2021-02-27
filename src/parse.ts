@@ -90,6 +90,6 @@ export default function(text: string): element {
 
   if(p < text.length) r.children.push(text.slice(p))
 
-  assert(sk.length <= 0)
+  assert(sk.length <= 0, '基础语法错误！')
   return r
 }

@@ -16,10 +16,11 @@ export type code = any
 export type codes = string|code
 export type vars = Dict<string, elements[]>
 
-export type parser = (context: Context, element: element) => codes[]
+export type parser = (context: Context, element: element) => Promise<codes[]>
 export type sifter = {parser: parser, desc: string}
 export type creator = (status: any, attrs: any[], children: any[]) => codes[]
 export type paramode = {line: Set<string>, block: Set<string>}
+export type importFile = (p: string) => Promise<string>
 
 
 export function newElement(): element {

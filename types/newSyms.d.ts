@@ -1,5 +1,7 @@
 declare const _default: () => {
+    comment: string;
     main: string;
+    imp: string;
     def: string;
     var: string;
     continue: string;

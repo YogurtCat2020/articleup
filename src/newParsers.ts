@@ -1,15 +1,39 @@
-import {is, str} from '@yogurtcat/lib'
+import {is, to, str} from '@yogurtcat/lib'
 import {element, parser} from './util'
 import newSyms from './newSyms'
 
 
-const main: parser = (context, element) => {
+const main: parser = async(context, element) => {
   element = context.parseChildrenVars(element)
   element = context.parseChildrenContinue(element)
   element = context.parseChildrenDelStrs(element)
-  return context.parseChildrenParsers(element)
+  return await context.parseChildrenParsers(element)
 }
-const def: parser = (context, element) => {
+const imp: parser = async(context, element) => {
+  element = context.parseVars(element)
+  element = context.parseElems(element)
+  element = context.parseChildrenVars(element)
+  element = context.parseChildrenContinue(element)
+  element = context.parseChildrenJoin(element)
+  element = context.parseChildrenSplit(element)
+  element = context.parseChildrenDelEmpty(element)
+  element = context.parseChildrenLines(element)
+
+  const vars = context.vars
+  for(let i of <element[]> element.children) {
+    if(i.children.length !== 1) continue
+    if(!is.str(i.children[0])) continue
+
+    let t = <string> i.children[0]
+    let k: string
+    [k, t] = str.splitLeft(t)
+    if(is.un(t) || to.has(t, ' ')) continue
+    t = await context.importFile(t)
+    vars.set(k, [t])
+  }
+  return []
+}
+const def: parser = async(context, element) => {
   element = context.parseVars(element)
   element = context.parseElems(element)
   element = context.parseChildrenContinue(element)
@@ -42,7 +66,7 @@ const def: parser = (context, element) => {
   }
   return []
 }
-const closure: parser = (context, element) => {
+const closure: parser = async(context, element) => {
   element = context.parseVars(element)
   element = context.parseElems(element)
   element = context.parseChildrenVars(element)
@@ -51,16 +75,16 @@ const closure: parser = (context, element) => {
   element = context.parseChildrenSplit(element)
   element = context.parseChildrenDelEmpty(element)
   element = context.parseChildrenLines(element)
-  return context.parseSifters(element)
+  return await context.parseSifters(element)
 }
-const paragraph: parser = (context, element) => {
-  return context.parseSifters(element)
+const paragraph: parser = async(context, element) => {
+  return await context.parseSifters(element)
 }
-const dft: parser = (context, element) => {
-  return context.parseCreate(element)
+const dft: parser = async(context, element) => {
+  return await context.parseCreate(element)
 }
 
-const image: parser = (context, element) => {
+const image: parser = async(context, element) => {
   element = context.parseVars(element)
   element = context.parseElems(element)
   element = context.parseChildrenVars(element)
@@ -78,7 +102,7 @@ const image: parser = (context, element) => {
   return context.createElement(sym, status, attrs, children)
 }
 const formula = image
-const code: parser = (context, element) => {
+const code: parser = async(context, element) => {
   element = context.parseVars(element)
   element = context.parseElems(element)
   element = context.parseChildrenVars(element)
@@ -99,6 +123,7 @@ export default (syms?: any) => {
 
   return {
     [syms.main]: main,
+    [syms.imp]: imp,
     [syms.def]: def,
     [syms.closure]: closure,
     [syms.paragraph]: paragraph,

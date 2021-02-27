@@ -1,6 +1,9 @@
 
 export default () => ({
+  comment: 'comment',
+
   main: '',
+  imp: '&',
   def: '#',
   var: ':',
   continue: '/',

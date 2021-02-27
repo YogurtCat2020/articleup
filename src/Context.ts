@@ -1,6 +1,7 @@
 import {is, to, str, arr, Dict} from '@yogurtcat/lib'
 import {element, elements, codes,
-  parser, sifter, creator, paramode, copyStatus} from './util'
+  parser, sifter, creator, paramode, importFile,
+  copyStatus} from './util'
 import newSyms from './newSyms'
 import newParsers from './newParsers'
 import newSifters from './newSifters'
@@ -17,7 +18,7 @@ export default class Context {
   public readonly sifters: Dict<string, sifter[]>
   public readonly creators: Dict<string, creator>
   public readonly paramode: paramode
-
+  public importFile: importFile
 
   public constructor() {
     const syms = newSyms()
@@ -32,9 +33,32 @@ export default class Context {
     this.sifters = new Dict<string, sifter[]>(sifters)
     this.creators = new Dict<string, creator>(creators)
     this.paramode = paramode
+    this.importFile = async(path) => path
   }
 
-  public parse(text: string): codes[] {
+  public async parseComment(text: string): Promise<codes[]> {
+    let element = parse(text)
+
+    element = this.parseVars(element)
+    element = this.parseElems(element)
+    element = this.parseChildrenVars(element)
+    element = this.parseChildrenContinue(element)
+    element = this.parseChildrenJoin(element)
+    element = this.parseChildrenSplit(element)
+    element = this.parseChildrenDelEmpty(element)
+    element = this.parseChildrenLines(element)
+    element = this.parseChildrenNewLines(element)
+
+    element.status.paragraph = 1
+    element = this.parseChildrenCopyStatus(element)
+    const children = await this.parseChildrenParsers(element)
+
+    const sym = this.syms.get('comment')
+    const status = element.status
+    return this.createElement(sym, status, [], children)
+  }
+
+  public async parse(text: string): Promise<codes[]> {
     const sym = this.syms.get('main')
 
     const parser = this.parsers.get(sym)
@@ -42,7 +66,7 @@ export default class Context {
 
     text = preproc(this.vars, text)
     const element = parse(text)
-    return parser(this, element)
+    return await parser(this, element)
   }
 
   public parseVars(element: element): element {  // 替换属性变量
@@ -271,30 +295,30 @@ export default class Context {
       if(is.obj(i)) copyStatus(i, element)
     return element
   }
-  public parseChildrenParsers(element: element): codes[] {
+  public async parseChildrenParsers(element: element): Promise<codes[]> {
     const r: codes[] = []
     for(let i of element.children)
       if(is.str(i)) r.push(i)
-      else arr.appends(r, this.parseParsers(i))
+      else arr.appends(r, await this.parseParsers(i))
     return r
   }
 
-  public parseParsers(element: element): codes[] {
+  public async parseParsers(element: element): Promise<codes[]> {
     if(element.elems.length < 1) return []
 
     const parser = this.parsers.get(element.elems[0].elem)
     if(is.un(parser)) return []
 
-    return parser(this, element)
+    return await parser(this, element)
   }
-  public parseSifters(element: element): codes[] {
+  public async parseSifters(element: element): Promise<codes[]> {
     if(element.elems.length < 1) return []
 
     const sifter = this.sifters.get(element.elems[0].elem)
     if(is.un(sifter)) return []
 
     for(let i of sifter) {
-      let r = i.parser(this, element)
+      let r = await i.parser(this, element)
       if(!is.un(r)) return r
     }
     return []
@@ -308,7 +332,7 @@ export default class Context {
     return creator(status, attrs, children)
   }
 
-  public parseCreate(element: element): codes[] {
+  public async parseCreate(element: element): Promise<codes[]> {
     if(element.elems.length < 1) return []
 
     element = this.parseVars(element)
@@ -321,7 +345,7 @@ export default class Context {
     element = this.parseChildrenLines(element)
     element = this.parseChildrenNewLines(element)
     element = this.parseChildrenCopyStatus(element)
-    const children = this.parseChildrenParsers(element)
+    const children = await this.parseChildrenParsers(element)
 
     const sym = element.elems[0].elem
     const attrs = element.elems[0].attrs

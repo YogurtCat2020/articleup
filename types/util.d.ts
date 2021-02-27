@@ -13,7 +13,7 @@ export declare type elements = string | element;
 export declare type code = any;
 export declare type codes = string | code;
 export declare type vars = Dict<string, elements[]>;
-export declare type parser = (context: Context, element: element) => codes[];
+export declare type parser = (context: Context, element: element) => Promise<codes[]>;
 export declare type sifter = {
     parser: parser;
     desc: string;
@@ -23,6 +23,7 @@ export declare type paramode = {
     line: Set<string>;
     block: Set<string>;
 };
+export declare type importFile = (p: string) => Promise<string>;
 export declare function newElement(): element;
 export declare function newCode(name: string, children?: any[]): code;
 export declare function copyStatus(tgt: element, src: element): void;

@@ -38,15 +38,34 @@ class Context {
         this.sifters = new lib_1.Dict(sifters);
         this.creators = new lib_1.Dict(creators);
         this.paramode = paramode;
+        this.importFile = async (path) => path;
     }
-    parse(text) {
+    async parseComment(text) {
+        let element = parse_1.default(text);
+        element = this.parseVars(element);
+        element = this.parseElems(element);
+        element = this.parseChildrenVars(element);
+        element = this.parseChildrenContinue(element);
+        element = this.parseChildrenJoin(element);
+        element = this.parseChildrenSplit(element);
+        element = this.parseChildrenDelEmpty(element);
+        element = this.parseChildrenLines(element);
+        element = this.parseChildrenNewLines(element);
+        element.status.paragraph = 1;
+        element = this.parseChildrenCopyStatus(element);
+        const children = await this.parseChildrenParsers(element);
+        const sym = this.syms.get('comment');
+        const status = element.status;
+        return this.createElement(sym, status, [], children);
+    }
+    async parse(text) {
         const sym = this.syms.get('main');
         const parser = this.parsers.get(sym);
         if (lib_1.is.un(parser))
             return [];
         text = preproc_1.default(this.vars, text);
         const element = parse_1.default(text);
-        return parser(this, element);
+        return await parser(this, element);
     }
     parseVars(element) {
         const sym = this.syms.get('var');
@@ -296,31 +315,31 @@ class Context {
                 util_1.copyStatus(i, element);
         return element;
     }
-    parseChildrenParsers(element) {
+    async parseChildrenParsers(element) {
         const r = [];
         for (let i of element.children)
             if (lib_1.is.str(i))
                 r.push(i);
             else
-                lib_1.arr.appends(r, this.parseParsers(i));
+                lib_1.arr.appends(r, await this.parseParsers(i));
         return r;
     }
-    parseParsers(element) {
+    async parseParsers(element) {
         if (element.elems.length < 1)
             return [];
         const parser = this.parsers.get(element.elems[0].elem);
         if (lib_1.is.un(parser))
             return [];
-        return parser(this, element);
+        return await parser(this, element);
     }
-    parseSifters(element) {
+    async parseSifters(element) {
         if (element.elems.length < 1)
             return [];
         const sifter = this.sifters.get(element.elems[0].elem);
         if (lib_1.is.un(sifter))
             return [];
         for (let i of sifter) {
-            let r = i.parser(this, element);
+            let r = await i.parser(this, element);
             if (!lib_1.is.un(r))
                 return r;
         }
@@ -332,7 +351,7 @@ class Context {
             return [];
         return creator(status, attrs, children);
     }
-    parseCreate(element) {
+    async parseCreate(element) {
         if (element.elems.length < 1)
             return [];
         element = this.parseVars(element);
@@ -345,7 +364,7 @@ class Context {
         element = this.parseChildrenLines(element);
         element = this.parseChildrenNewLines(element);
         element = this.parseChildrenCopyStatus(element);
-        const children = this.parseChildrenParsers(element);
+        const children = await this.parseChildrenParsers(element);
         const sym = element.elems[0].elem;
         const attrs = element.elems[0].attrs;
         const status = element.status;
@@ -368,12 +387,37 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const lib_1 = __webpack_require__(/*! @yogurtcat/lib */ "@yogurtcat/lib");
 const util_1 = __webpack_require__(/*! ./util */ "./src/util.ts");
 const newSyms_1 = __webpack_require__(/*! ./newSyms */ "./src/newSyms.ts");
-const article = (status, attrs, children) => [util_1.newCode(`'article'`, children)];
-const section = (status, attrs, children) => [util_1.newCode(`'section'`, children)];
-const figure = (status, attrs, children) => [util_1.newCode(`'figure'`, children)];
+const comment = (status, attrs, children) => {
+    if (status.chapter)
+        return [];
+    return [lib_1.decor.$(util_1.newCode(`'div'`, children), util_1.addClass('comment'))];
+};
+const article = (status, attrs, children) => {
+    if (!status.chapter)
+        return [];
+    return [util_1.newCode(`'article'`, children)];
+};
+const section = (status, attrs, children) => {
+    if (!status.chapter)
+        return [];
+    return [util_1.newCode(`'section'`, children)];
+};
+const figure = (status, attrs, children) => {
+    if (!status.chapter)
+        return [];
+    return [util_1.newCode(`'figure'`, children)];
+};
 const paragraph = (status, attrs, children) => [util_1.newCode(`'p'`, children)];
-const headline = (status, attrs, children) => [util_1.newCode(`'h${status.chapter}'`, children)];
-const caption = (status, attrs, children) => [util_1.newCode(`'caption'`, children)];
+const headline = (status, attrs, children) => {
+    if (!status.chapter)
+        return [];
+    return [util_1.newCode(`'h${status.chapter}'`, children)];
+};
+const caption = (status, attrs, children) => {
+    if (!status.chapter)
+        return [];
+    return [util_1.newCode(`'caption'`, children)];
+};
 const align = (status, attrs, children) => {
     let name;
     if (status.paragraph === 1 && status.line_block === true)
@@ -507,6 +551,7 @@ exports.default = (syms) => {
     if (lib_1.is.un(syms))
         syms = newSyms_1.default();
     return {
+        [syms.comment]: comment,
         [syms.article]: article,
         [syms.section]: section,
         [syms.figure]: figure,
@@ -603,13 +648,38 @@ exports.default = (syms) => {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const lib_1 = __webpack_require__(/*! @yogurtcat/lib */ "@yogurtcat/lib");
 const newSyms_1 = __webpack_require__(/*! ./newSyms */ "./src/newSyms.ts");
-const main = (context, element) => {
+const main = async (context, element) => {
     element = context.parseChildrenVars(element);
     element = context.parseChildrenContinue(element);
     element = context.parseChildrenDelStrs(element);
-    return context.parseChildrenParsers(element);
+    return await context.parseChildrenParsers(element);
 };
-const def = (context, element) => {
+const imp = async (context, element) => {
+    element = context.parseVars(element);
+    element = context.parseElems(element);
+    element = context.parseChildrenVars(element);
+    element = context.parseChildrenContinue(element);
+    element = context.parseChildrenJoin(element);
+    element = context.parseChildrenSplit(element);
+    element = context.parseChildrenDelEmpty(element);
+    element = context.parseChildrenLines(element);
+    const vars = context.vars;
+    for (let i of element.children) {
+        if (i.children.length !== 1)
+            continue;
+        if (!lib_1.is.str(i.children[0]))
+            continue;
+        let t = i.children[0];
+        let k;
+        [k, t] = lib_1.str.splitLeft(t);
+        if (lib_1.is.un(t) || lib_1.to.has(t, ' '))
+            continue;
+        t = await context.importFile(t);
+        vars.set(k, [t]);
+    }
+    return [];
+};
+const def = async (context, element) => {
     element = context.parseVars(element);
     element = context.parseElems(element);
     element = context.parseChildrenContinue(element);
@@ -641,7 +711,7 @@ const def = (context, element) => {
     }
     return [];
 };
-const closure = (context, element) => {
+const closure = async (context, element) => {
     element = context.parseVars(element);
     element = context.parseElems(element);
     element = context.parseChildrenVars(element);
@@ -650,15 +720,15 @@ const closure = (context, element) => {
     element = context.parseChildrenSplit(element);
     element = context.parseChildrenDelEmpty(element);
     element = context.parseChildrenLines(element);
-    return context.parseSifters(element);
+    return await context.parseSifters(element);
 };
-const paragraph = (context, element) => {
-    return context.parseSifters(element);
+const paragraph = async (context, element) => {
+    return await context.parseSifters(element);
 };
-const dft = (context, element) => {
-    return context.parseCreate(element);
+const dft = async (context, element) => {
+    return await context.parseCreate(element);
 };
-const image = (context, element) => {
+const image = async (context, element) => {
     element = context.parseVars(element);
     element = context.parseElems(element);
     element = context.parseChildrenVars(element);
@@ -675,7 +745,7 @@ const image = (context, element) => {
     return context.createElement(sym, status, attrs, children);
 };
 const formula = image;
-const code = (context, element) => {
+const code = async (context, element) => {
     element = context.parseVars(element);
     element = context.parseElems(element);
     element = context.parseChildrenVars(element);
@@ -693,6 +763,7 @@ exports.default = (syms) => {
         syms = newSyms_1.default();
     return {
         [syms.main]: main,
+        [syms.imp]: imp,
         [syms.def]: def,
         [syms.closure]: closure,
         [syms.paragraph]: paragraph,
@@ -754,7 +825,7 @@ function isParagraphOneStr(element) {
     }
     return false;
 }
-const article = (context, element) => {
+const article = async (context, element) => {
     if (!lib_1.is.un(element.status.chapter))
         return null;
     let sym = context.syms.get('headline');
@@ -764,13 +835,13 @@ const article = (context, element) => {
     element.status.figure = null;
     element.status.paragraph = null;
     element = context.parseChildrenCopyStatus(element);
-    const children = context.parseChildrenParsers(element);
+    const children = await context.parseChildrenParsers(element);
     sym = context.syms.get('article');
     const status = element.status;
     const attrs = element.elems[0].attrs;
     return context.createElement(sym, status, attrs, children);
 };
-const section = (context, element) => {
+const section = async (context, element) => {
     if (lib_1.is.un(element.status.chapter))
         return null;
     let sym = context.syms.get('headline');
@@ -779,13 +850,13 @@ const section = (context, element) => {
     element.status.chapter += 1;
     element.status.paragraph = null;
     element = context.parseChildrenCopyStatus(element);
-    const children = context.parseChildrenParsers(element);
+    const children = await context.parseChildrenParsers(element);
     sym = context.syms.get('section');
     const status = element.status;
     const attrs = element.elems[0].attrs;
     return context.createElement(sym, status, attrs, children);
 };
-const figure = (context, element) => {
+const figure = async (context, element) => {
     if (!lib_1.is.un(element.status.figure))
         return null;
     let sym = context.syms.get('caption');
@@ -794,13 +865,13 @@ const figure = (context, element) => {
     element.status.figure = true;
     element.status.paragraph = null;
     element = context.parseChildrenCopyStatus(element);
-    const children = context.parseChildrenParsers(element);
+    const children = await context.parseChildrenParsers(element);
     sym = context.syms.get('figure');
     const status = element.status;
     const attrs = element.elems[0].attrs;
     return context.createElement(sym, status, attrs, children);
 };
-const oneStr = (context, element) => {
+const oneStr = async (context, element) => {
     if (!isParagraphOneStr(element))
         return null;
     const children = [lib_1.to.str(element.children[0])];
@@ -812,7 +883,7 @@ const oneStr = (context, element) => {
     const attrs = element.elems[0].attrs;
     return context.createElement(sym, status, attrs, children);
 };
-const oneElemLine = (context, element) => {
+const oneElemLine = async (context, element) => {
     if (!isParagraphOneElem(element))
         return null;
     const elem = element.children[0].elems[0].elem;
@@ -826,7 +897,7 @@ const oneElemLine = (context, element) => {
     }
     element.status.line_block = false;
     element = context.parseChildrenCopyStatus(element);
-    const children = context.parseChildrenParsers(element);
+    const children = await context.parseChildrenParsers(element);
     if (p)
         return children;
     const sym = context.syms.get('paragraph');
@@ -834,7 +905,7 @@ const oneElemLine = (context, element) => {
     const attrs = element.elems[0].attrs;
     return context.createElement(sym, status, attrs, children);
 };
-const oneElemBlock = (context, element) => {
+const oneElemBlock = async (context, element) => {
     if (!isParagraphOneElem(element))
         return null;
     const elem = element.children[0].elems[0].elem;
@@ -846,9 +917,9 @@ const oneElemBlock = (context, element) => {
     element.status.line_block = true;
     element.status.paragraph = 1;
     element = context.parseChildrenCopyStatus(element);
-    return context.parseChildrenParsers(element);
+    return await context.parseChildrenParsers(element);
 };
-const many = (context, element) => {
+const many = async (context, element) => {
     if (element.children.length <= 1)
         return null;
     let p = true;
@@ -863,7 +934,7 @@ const many = (context, element) => {
         if (lib_1.is.str(i))
             children.push(lib_1.to.str(i));
         else if (set.has(i.elems[0].elem))
-            lib_1.arr.appends(children, context.parseParsers(i));
+            lib_1.arr.appends(children, await context.parseParsers(i));
     }
     if (p)
         return children;
@@ -902,7 +973,9 @@ exports.default = (syms) => {
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.default = () => ({
+    comment: 'comment',
     main: '',
+    imp: '&',
     def: '#',
     var: ':',
     continue: '/',
@@ -1052,7 +1125,7 @@ function default_1(text) {
     }
     if (p < text.length)
         r.children.push(text.slice(p));
-    lib_1.assert(sk.length <= 0);
+    lib_1.assert(sk.length <= 0, '基础语法错误！');
     return r;
 }
 exports.default = default_1;
