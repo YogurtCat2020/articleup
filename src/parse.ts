@@ -8,6 +8,8 @@ const ATTRS = Symbol('ATTRS')
 
 
 export default function(text: string): element {
+  text = text+'\n'
+
   let r = newElement()
   let sk: element[] = []
   let lv = 0

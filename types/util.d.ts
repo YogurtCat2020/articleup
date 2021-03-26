@@ -27,5 +27,5 @@ export declare type importFile = (p: string) => Promise<string>;
 export declare function newElement(): element;
 export declare function newCode(name: string, children?: any[]): code;
 export declare function copyStatus(tgt: element, src: element): void;
-export declare function addClass(key: string, val?: string): decorator;
+export declare function addClass(key: string): decorator;
 export declare function addAttrs(key: string, val: string): decorator;

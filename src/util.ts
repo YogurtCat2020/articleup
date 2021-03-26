@@ -46,9 +46,7 @@ export function copyStatus(tgt: element, src: element): void {
   tgt.status = to.obj(src.status)
 }
 
-export function addClass(key: string, val?: string): decorator {
-  if(is.un(val)) val = `true`
-
+export function addClass(key: string): decorator {
   return obj => {
     decor.$(obj,
       decor.obj.add('A', init.obj),
@@ -58,10 +56,10 @@ export function addClass(key: string, val?: string): decorator {
       decor.obj.get('I'),
       decor.obj.add('class', init.obj),
       decor.obj.get('class'),
-      decor.obj.set('X', 'O'),
-      decor.obj.add('I', init.obj),
+      decor.obj.set('X', 'A'),
+      decor.obj.add('I', init.arr),
       decor.obj.get('I'),
-      decor.obj.set(key, val)
+      x => {x.push(to.str(key))}
     )
   }
 }

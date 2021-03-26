@@ -1027,6 +1027,7 @@ const CHILDREN = Symbol('CHILDREN');
 const ELEMS = Symbol('ELEMS');
 const ATTRS = Symbol('ATTRS');
 function default_1(text) {
+    text = text + '\n';
     let r = util_1.newElement();
     let sk = [];
     let lv = 0;
@@ -1222,11 +1223,9 @@ function copyStatus(tgt, src) {
     tgt.status = lib_1.to.obj(src.status);
 }
 exports.copyStatus = copyStatus;
-function addClass(key, val) {
-    if (lib_1.is.un(val))
-        val = `true`;
+function addClass(key) {
     return obj => {
-        lib_1.decor.$(obj, lib_1.decor.obj.add('A', lib_1.init.obj), lib_1.decor.obj.get('A'), lib_1.decor.obj.set('X', 'O'), lib_1.decor.obj.add('I', lib_1.init.obj), lib_1.decor.obj.get('I'), lib_1.decor.obj.add('class', lib_1.init.obj), lib_1.decor.obj.get('class'), lib_1.decor.obj.set('X', 'O'), lib_1.decor.obj.add('I', lib_1.init.obj), lib_1.decor.obj.get('I'), lib_1.decor.obj.set(key, val));
+        lib_1.decor.$(obj, lib_1.decor.obj.add('A', lib_1.init.obj), lib_1.decor.obj.get('A'), lib_1.decor.obj.set('X', 'O'), lib_1.decor.obj.add('I', lib_1.init.obj), lib_1.decor.obj.get('I'), lib_1.decor.obj.add('class', lib_1.init.obj), lib_1.decor.obj.get('class'), lib_1.decor.obj.set('X', 'A'), lib_1.decor.obj.add('I', lib_1.init.arr), lib_1.decor.obj.get('I'), x => { x.push(lib_1.to.str(key)); });
     };
 }
 exports.addClass = addClass;
