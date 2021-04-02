@@ -9,7 +9,7 @@ const license = ({
   version,
   repository
 }) => {
-  let r = `${name}.js v${version}\n`
+  let r = `${name}.js${version? " v"+version: ""}\n`
     + `(c) ${date} ${author}\n`
 
   if(repository)

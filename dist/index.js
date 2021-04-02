@@ -1,5 +1,5 @@
 /*!
- * articleup.js v1.1.0
+ * articleup.js
  * (c) 2020- YogurtCat
  * git: https://github.com/YogurtCat2020/articleup
  * Released under the MIT License.

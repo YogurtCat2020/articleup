@@ -1,8 +1,8 @@
 {
   "author": "YogurtCat",
   "name": "articleup",
-  "version": "1.1.0",
-  "description": "A package for aspect-oriented development of Vue components.",
+  "version": "1.1.1",
+  "description": "A component-oriented, customizable component, customizable partial syntax, lightweight, easy to learn markup language.",
   "keywords": [
     "articleup",
     "component-oriented",
