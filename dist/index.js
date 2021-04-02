@@ -492,15 +492,17 @@ const image = (status, attrs, children) => {
     let [txt] = children;
     if (lib_1.is.un(img))
         return [];
+    if (lib_1.is.un(txt))
+        txt = '';
     if (lib_1.is.un(width))
         width = '0';
     if (lib_1.is.un(height))
         height = '0';
     img = lib_1.to.str(img);
-    txt = lib_1.is.un(txt) ? null : util_1.addAttrs('alt', lib_1.to.str(txt));
+    txt = lib_1.to.str(txt);
     width = width === '0' ? null : util_1.addAttrs('width', lib_1.to.str(width));
     height = height === '0' ? null : util_1.addAttrs('height', lib_1.to.str(height));
-    return [lib_1.decor.$(util_1.newCode(`'img'`), util_1.addAttrs('src', img), txt, width, height)];
+    return [lib_1.decor.$(util_1.newCode(`'img'`), util_1.addAttrs('src', img), util_1.addAttrs('alt', txt), width, height)];
 };
 const formula = (status, attrs, children) => {
     let [width, height, mode] = attrs;

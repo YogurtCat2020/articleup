@@ -115,17 +115,18 @@ const image: creator = (status, attrs, children) => {
   let [img, width, height] = attrs
   let [txt] = children
   if(is.un(img)) return []
+  if(is.un(txt)) txt = ''
   if(is.un(width)) width = '0'
   if(is.un(height)) height = '0'
 
   img = to.str(img)
-  txt = is.un(txt)? null: addAttrs('alt', to.str(txt))
+  txt = to.str(txt)
   width = width === '0'? null: addAttrs('width', to.str(width))
   height = height === '0'? null: addAttrs('height', to.str(height))
 
   return [decor.$(newCode(`'img'`),
     addAttrs('src', img),
-    txt,
+    addAttrs('alt', txt),
     width, height
   )]
 }
