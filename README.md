@@ -1,65 +1,119 @@
-# articleup
+# **articleup**
 
-A component-oriented, customizable component, customizable partial syntax, lightweight, and easy to learn markup language.
+**articleup**，基于 TypeScript 开发，
+是一种面向组件、可自定义组件、可自定义部分语法、轻量级、简单易学的标记语言。
 
-Articleup is a component-oriented markup language, developed based on TypeScript. It allows users to write documents in plain text format with special articleup syntax, and compiles them into Vue components. Articleup supports customizable component and customizable partial syntax.
 
-## Installation
+
+## **安装**
+
+首先通过 npm 安装，
+`articleup` 依赖于 `@yogurtcat/lib`、`dasta`
 
 ```sh
+npm i -S @yogurtcat/lib
+npm i -S dasta
 npm i -S articleup
 ```
 
-## Usage
+另外，如果需要 代码高亮，需要安装 Highlight.js 。
 
-Add in webpack.config.js
+### **直接和目标代码打包**
+
+啥也不加。
+
+### **通过标签引入**
+
+在 webpack.config.js 文件中添加
 
 ```JavaScript
 externals: {
-  'articleup': 'articleup'
+  '@yogurtcat/lib': 'global $yogurtcat$lib',
+  'dasta': 'global dasta',
+  'articleup': 'global articleup'
 }
 ```
 
-Import modules by adding tags in index.html
+在 html 文件中添加
 
 ```HTML
-<link rel="stylesheet" href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.5.0/build/styles/default.min.css">
-<script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.5.0/build/highlight.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@yogurtcat/lib@1.0.10/dist/index.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/dasta@1.0.30/dist/index.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/articleup@1.0.0/dist/index.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@yogurtcat/lib@{版本号}/dist/index.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dasta@{版本号}/dist/index.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/articleup@{版本号}/dist/index.min.js"></script>
 ```
 
-Import in TypeScript (or JavaScript)
+其中的 `{版本号}` 请查询最新版本号后替换。
 
-```TypeScript
-import {Component} from 'dasta'
-import {Context} from 'articleup'
+### **在 Vue 项目中使用**
+
+在 webpack.config.js 文件中添加
+
+```JavaScript
+externals: {
+  '@yogurtcat/lib': 'global $yogurtcat$lib',
+  'dasta': 'global dasta',
+  'articleup': 'global articleup'
+}
 ```
 
-## Examples
+在 main.js 文件中添加
+
+```JavaScript
+import '@yogurtcat/lib/dist/index.min.js'
+import 'dasta/dist/index.min.js'
+import 'articleup/dist/index.min.js'
+```
+
+### **二次开发 npm 包**
+
+如果目标包通过 webpack 打包，
+则在 webpack.config.js 文件中添加
+
+```JavaScript
+externals: {
+  '@yogurtcat/lib': 'commonjs2 @yogurtcat/lib',
+  'dasta': 'commonjs2 dasta',
+  'articleup': 'commonjs2 articleup'
+}
+```
+
+或者
+如果目标包通过标签引入，
+则在 webpack.config.js 文件中添加
+
+```JavaScript
+externals: {
+  '@yogurtcat/lib': 'global $yogurtcat$lib',
+  'dasta': 'global dasta',
+  'articleup': 'global articleup'
+}
+```
+
+
+
+## **使用**
 
 ```TypeScript
 const doc = `
-$:{Here you can define a variable, which can be a string or an element. Multiple lines should be wrapped with .{}}
+$:{这里定义变量，变量可以是字符串，也可以是组件，多行的要用.{}包起来}
 $#{
   ~hello  Hello world!
   ~url  https://i0.hdslb.com/bfs/archive/c9383573ee0f1beea105b1a83862357d88210388.jpg
   ~pretty  $.{
-    Ganyu is so cool!
+    许愿椰羊
     $I:(~url  50%)
   }
 }
 
-$:{The article is wrapped with .{}}
-$.{ $H{headline}
+$:{文章用.{}包起来}
+$.{ $H{标题}
 
-  $:{The .{} in the article represents the section}
-  $.{ $H{Chapter one}
+  $:{文章内的.{}表示章节}
+  $.{ $H{第一章}
     $:(~hello)
   }
 
-  $.{ $H{Chapter two}
+  $.{ $H{第二章}
   }
 
   $:(~pretty)
@@ -74,4 +128,4 @@ const component = new Component({
 }).component
 ```
 
-The component variable is a Vue component object generated after compiling the doc.
+其中的 component 变量就是将 doc 编译后得到的 Vue 组件对象。

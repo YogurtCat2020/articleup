@@ -1,6 +1,6 @@
 const webpack = require('webpack')
 const TerserPlugin = require('terser-webpack-plugin')
-const {path, configWebpack} = require('../util')
+const {path, configWebpack} = require('./util')
 const config = {
   author: 'YogurtCat',
   date: '2020-',
