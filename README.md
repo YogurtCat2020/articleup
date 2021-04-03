@@ -1,6 +1,6 @@
-# **articleup**
+# **ArticleUp**
 
-**articleup**，基于 TypeScript 开发，
+**ArticleUp**，基于 TypeScript 开发，
 是一种面向组件、可自定义组件、可自定义部分语法、轻量级、简单易学的标记语言。
 
 
